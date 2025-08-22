@@ -1,0 +1,43 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate:
+    name: CI Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: false
+          experimental: true
+
+      - name: Download Go dependencies
+        run: go mod download
+
+      - name: Run format check
+        run: mise run format
+
+      - name: Run lint
+        run: mise run lint
+
+      - name: Run tests
+        run: mise run test
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.out

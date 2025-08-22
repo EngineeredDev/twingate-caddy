@@ -1,0 +1,66 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release Caddy Binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: false
+          experimental: true
+
+      - name: Build Caddy with Twingate plugin
+        run: mise run build
+
+      - name: Extract version from tag
+        id: tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Release version: ${VERSION}"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.version }}
+          release_name: Release ${{ steps.tag.outputs.version }}
+          body: |
+            Release ${{ steps.tag.outputs.version }}
+
+            ## Installation
+            Download the `caddy` binary, make it executable, and run:
+            ```bash
+            chmod +x caddy
+            ./caddy run --config Caddyfile
+            ```
+          draft: false
+          prerelease: false
+
+      - name: Upload Caddy Binary (Linux AMD64)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./caddy
+          asset_name: caddy-linux-amd64
+          asset_content_type: application/octet-stream

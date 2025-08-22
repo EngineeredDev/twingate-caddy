@@ -1,0 +1,79 @@
+# Example Caddyfile demonstrating Twingate integration
+
+{
+	# Configure Twingate module
+	# Note: Set TWINGATE_API_KEY environment variable with your API token
+	twingate {
+		tenant "your-company"                    # Required: Your Twingate tenant name
+		remote_network "Production-Services"     # Optional: Remote network name (defaults to "Caddy-Managed")
+    caddy_address "192.168.1.202"						 # Optional: The address that Twingate clients will use to connect to Caddy
+		resource_cleanup {
+			enabled true                           # Optional: Enable automatic cleanup of unused resources
+		}
+	}
+}
+
+# Example 1: Simple reverse proxy for API service
+api.example.com {
+	reverse_proxy localhost:8080
+}
+
+# Example 2: Path-based routing with multiple upstreams
+app.example.com {
+	# Route API calls to backend service
+	reverse_proxy /api/* localhost:3000
+	
+	# Route admin calls to admin service
+	reverse_proxy /admin/* localhost:3001
+}
+
+# Example 3: Load balancing across multiple upstreams
+web.example.com {
+	reverse_proxy localhost:8001 localhost:8002 localhost:8003 {
+		lb_policy round_robin
+		health_path /health
+		health_interval 30s
+	}
+}
+
+# Example 4: Wildcard subdomain handling
+*.dev.example.com {
+	reverse_proxy localhost:9000
+}
+
+# Example 5: HTTPS upstream
+secure.example.com {
+	reverse_proxy https://internal-service.local:8443 {
+		transport http {
+			tls
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+# Example 6: Advanced routing with handle blocks
+complex.example.com {
+	# Handle different paths with different upstreams
+	handle /v1/* {
+		reverse_proxy localhost:8100
+	}
+	
+	handle /v2/* {
+		reverse_proxy localhost:8200
+	}
+	
+	# Fallback handler
+	handle {
+		reverse_proxy localhost:8000
+	}
+}
+
+# Example 7: Route with matchers
+monitor.example.com {
+	route {
+		@api_requests {
+			header Accept application/json
+		}
+		reverse_proxy @api_requests localhost:9090
+	}
+}
