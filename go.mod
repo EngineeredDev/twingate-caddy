@@ -1,4 +1,4 @@
-module github.com/twingate/twingate-caddy-plugin
+module github.com/EngineeredDev/twingate-caddy
 
 go 1.25
 

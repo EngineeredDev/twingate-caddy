@@ -31,7 +31,7 @@ run = "golangci-lint run"
 
 [tasks.build]
 description = "Build Caddy with Twingate plugin using xcaddy"
-run = "xcaddy build --with github.com/twingate/twingate-caddy-plugin=."
+run = "xcaddy build --with github.com/EngineeredDev/twingate-caddy=."
 
 [tasks.ci]
 description = "Run all CI checks (format, lint, test)"

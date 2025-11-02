@@ -10,12 +10,10 @@ This module scans your Caddy reverse proxy routes and automatically creates corr
 
 ### Option 1: Download Pre-built Binary
 
-Download the latest release for your platform from the [Releases](https://github.com/twingate/twingate-caddy-plugin/releases) page.
+Download the latest release for your platform from the [Releases](https://github.com/EngineeredDev/twingate-caddy/releases) page.
 
 **Supported Platforms:**
 - **Linux**: amd64, arm64, armv6, armv7
-- **macOS**: amd64 (Intel), arm64 (Apple Silicon)
-- **Windows**: amd64, arm64
 - **FreeBSD**: amd64
 
 ```bash
@@ -35,10 +33,63 @@ Requires Go 1.25+ and [xcaddy](https://github.com/caddyserver/xcaddy).
 go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
 
 # Build Caddy with this module
-xcaddy build --with github.com/twingate/twingate-caddy-plugin
+xcaddy build --with github.com/EngineeredDev/twingate-caddy
 
 # Run
 ./caddy run --config Caddyfile
+```
+
+### Option 3: Docker
+
+Docker images are available from GitHub Container Registry.
+
+**Supported Platforms:**
+- **linux/amd64**: x86_64 64-bit
+- **linux/arm64**: ARM 64-bit (including Apple Silicon via Docker Desktop)
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/engineereddev/twingate-caddy:latest
+
+# Or pull a specific version
+docker pull ghcr.io/engineereddev/twingate-caddy:v0.0.1
+
+# Run with a Caddyfile from your host
+docker run -d \
+  --name twingate-caddy \
+  -p 80:80 \
+  -p 443:443 \
+  -e TWINGATE_API_KEY=your_api_key_here \
+  -v $(pwd)/Caddyfile:/etc/caddy/Caddyfile \
+  -v caddy_data:/data \
+  -v caddy_config:/config \
+  ghcr.io/engineereddev/twingate-caddy:latest
+```
+
+**Docker Compose Example:**
+
+```yaml
+version: '3.8'
+
+services:
+  twingate-caddy:
+    image: ghcr.io/engineereddev/twingate-caddy:latest
+    container_name: twingate-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"  # Admin API (optional)
+    environment:
+      - TWINGATE_API_KEY=${TWINGATE_API_KEY}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
 ```
 
 ## Configuration
@@ -161,6 +212,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Support
 
-- [Report Issues](https://github.com/twingate/twingate-caddy-plugin/issues)
+- [Report Issues](https://github.com/EngineeredDev/twingate-caddy/issues)
 - [Twingate Documentation](https://www.twingate.com/docs)
 - [Caddy Documentation](https://caddyserver.com/docs)
