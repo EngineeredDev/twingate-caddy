@@ -1,0 +1,59 @@
+[tools]
+go = "latest"
+"go:github.com/golangci/golangci-lint/cmd/golangci-lint" = "latest"
+"go:github.com/caddyserver/xcaddy/cmd/xcaddy" = "latest"
+"go:github.com/goreleaser/goreleaser/v2" = "latest"
+
+[tasks.test]
+description = "Run unit tests with race detection and coverage"
+run = "go test -v -race -coverprofile=coverage.out ./..."
+
+[tasks.format]
+description = "Check Go code formatting"
+run = '''
+unformatted=$(gofmt -l .)
+if [ -n "$unformatted" ]; then
+  echo "The following files are not formatted:"
+  echo "$unformatted"
+  echo ""
+  echo "Run 'mise run format:fix' to fix formatting"
+  exit 1
+fi
+'''
+
+[tasks."format:fix"]
+description = "Fix Go code formatting"
+run = "gofmt -w ."
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run"
+
+[tasks.build]
+description = "Build Caddy with Twingate plugin using xcaddy"
+run = "xcaddy build --with github.com/twingate/twingate-caddy-plugin=."
+
+[tasks.ci]
+description = "Run all CI checks (format, lint, test)"
+depends = ["format", "lint", "test"]
+
+[tasks.clean]
+description = "Clean build artifacts and test cache"
+run = [
+  "rm -f caddy",
+  "rm -f coverage.out",
+  "rm -rf dist",
+  "go clean -testcache"
+]
+
+[tasks."build:snapshot"]
+description = "Build multi-architecture binaries locally using GoReleaser (no release)"
+run = "goreleaser build --snapshot --clean"
+
+[tasks."release:snapshot"]
+description = "Create a snapshot release locally for testing (includes archives and checksums)"
+run = "goreleaser release --snapshot --clean"
+
+[tasks."release:check"]
+description = "Check if the GoReleaser configuration is valid"
+run = "goreleaser check"
