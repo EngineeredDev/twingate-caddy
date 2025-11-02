@@ -55,6 +55,13 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Update latest tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f latest
+          git push -f origin latest
+
       - name: Upload Caddy Binary (Linux AMD64)
         uses: actions/upload-release-asset@v1
         env:
