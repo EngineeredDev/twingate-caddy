@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.twingate.com)",
+      "WebSearch",
+      "WebFetch(domain:caddyserver.com)",
+      "Bash(go build:*)",
+      "Bash(xcaddy build:*)",
+      "Bash(timeout:*)",
+      "Bash(./caddy run:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "mcp__ai-counsel__deliberate",
+      "Bash(go doc -all github.com/caddyserver/caddy/v2/modules/caddyevents)",
+      "WebFetch(domain:pkg.go.dev)",
+      "Bash(go doc github.com/caddyserver/caddy/v2/modules/caddyevents.Handler)",
+      "Bash(go test -v -run \"TestGetOutboundIP|TestNormalizePath|TestCanonicalKey|TestResourceAlias\")",
+      "Bash(go test -v)",
+      "Bash(go test -v -run TestDeleteStaleResources)",
+      "Bash(go test -v ./...)",
+      "WebFetch(domain:mise.jdx.dev)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "mcpServers": {
+    "ai-counsel": {
+      "type": "stdio",
+      "command": "/Users/demi-twingate/repos/ai-counsel/.venv/bin/python",
+      "args": [
+        "/Users/demi-twingate/repos/ai-counsel/server.py"
+      ]
+    }
+  }
+}
